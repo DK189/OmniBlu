@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/DOCS/">
+    <File Path=".gitignore" />
+    <File Path="CHANGELOG.md" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="OmniBlu.Tests/OmniBlu.Tests.csproj" />
+  <Project Path="OmniBlu/OmniBlu.csproj" />
+</Solution>

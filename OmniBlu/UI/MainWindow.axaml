@@ -1,0 +1,344 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OmniBlu.ViewModels"
+        x:Class="OmniBlu.UI.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="OmniBlu"
+        Icon="/Assets/omniblu.png"
+        Width="980" SizeToContent="Height" CanResize="False"
+        WindowDecorations="None"
+        Background="#0F131A">
+
+    <Window.Styles>
+        <!-- Buttons of the title bar -->
+        <Style Selector="Button.titlebtn">
+            <Setter Property="Width" Value="46" />
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.titlebtn Path">
+            <Setter Property="Stroke" Value="#C8D0DC" />
+            <Setter Property="StrokeThickness" Value="1.3" />
+        </Style>
+        <Style Selector="Button.titlebtn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#2A3340" />
+        </Style>
+        <Style Selector="Button.titlebtn.quit:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#C42B1C" />
+        </Style>
+        <Style Selector="Button.titlebtn.quit:pointerover Path">
+            <Setter Property="Stroke" Value="White" />
+        </Style>
+    </Window.Styles>
+
+    <Border BorderBrush="#2A3340" BorderThickness="1">
+        <DockPanel>
+
+            <!-- Title bar: same colour as the window. Drag it to move the window. -->
+            <Grid DockPanel.Dock="Top" Height="38" ColumnDefinitions="Auto,*,Auto,Auto" Background="#0F131A"
+                  PointerPressed="TitleBar_PointerPressed">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="12,0,0,0" VerticalAlignment="Center"
+                            ToolTip.Tip="Your phone is the host. This PC works as its Bluetooth speaker (A2DP) and as its keyboard and mouse (HID).">
+                    <Image Source="/Assets/omniblu.png" Width="18" Height="18" />
+                    <TextBlock Text="OmniBlu" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" />
+                </StackPanel>
+                <ToggleButton x:Name="SettingsToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,0,8,0" Padding="10,4" FontSize="12"
+                              Content="⚙ Settings" IsChecked="{Binding IsSettingsOpen, Mode=TwoWay}"
+                              ToolTip.Tip="Show or hide the settings" />
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <Button Classes="titlebtn" Click="Minimize_Click" ToolTip.Tip="Minimize to the taskbar">
+                        <Path Data="M0,0 L10,0" />
+                    </Button>
+                    <Button Classes="titlebtn" Click="HideToTray_Click" ToolTip.Tip="Hide to the tray">
+                        <Path Data="M5,0 L5,6 M2,3.5 L5,6.5 L8,3.5 M0,9.5 L10,9.5" />
+                    </Button>
+                    <Button Classes="titlebtn quit" Click="Quit_Click" ToolTip.Tip="Quit OmniBlu">
+                        <Path Data="M0,0 L10,10 M10,0 L0,10" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto" Margin="16,4,16,16" RowSpacing="12">
+
+        <!-- Row 1: Available -->
+        <Border Grid.Row="0" Classes="panel" x:Name="AvailableZone" Tag="Available" DragDrop.AllowDrop="True">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,10">
+                    <TextBlock Classes="title" Text="Available" />
+                    <TextBlock Classes="hint" VerticalAlignment="Center"
+                               Text="Paired phones and computers. Connect a device, then drag it to Audio. Edit the name and icon directly." />
+                </StackPanel>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PointerWheelChanged="HorizontalScroll_Wheel">
+                    <Grid>
+                        <ItemsControl x:Name="AvailableList" ItemsSource="{Binding Devices}" MinHeight="60">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DeviceViewModel">
+                                    <Border Classes="card draggable"
+                                            Tag="Available" Width="290" Margin="0,0,10,4"
+                                            PointerPressed="Card_PointerPressed"
+                                            PointerMoved="Card_PointerMoved"
+                                            PointerReleased="Card_PointerReleased">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="8">
+                                            <Button Grid.RowSpan="2" Classes="icon" Content="{Binding Icon}" Click="Icon_Click"
+                                                    ToolTip.Tip="Change icon">
+                                                <Button.Flyout>
+                                                    <Flyout Placement="BottomEdgeAlignedLeft">
+                                                        <WrapPanel Width="220">
+                                                            <Button Classes="pick" Content="📱" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="💻" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="⌚" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="📺" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="🎧" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="🔊" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="⌨" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="🖱" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="🎮" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="🤖" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="📻" Click="IconPick_Click" />
+                                                            <Button Classes="pick" Content="🚗" Click="IconPick_Click" />
+                                                        </WrapPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
+                                            <TextBox Grid.Column="1" Grid.ColumnSpan="2" Classes="inline" Text="{Binding Name}"
+                                                     FontWeight="SemiBold" VerticalAlignment="Center" />
+                                            <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*" ColumnSpacing="6" VerticalAlignment="Center">
+                                                <Ellipse Classes="dot" Classes.connected="{Binding IsReady}" Classes.connecting="{Binding IsConnecting}" />
+                                                <TextBlock Grid.Column="1" Classes="hint" Text="{Binding StatusText}" VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding StatusText}" />
+                                            </Grid>
+                                            <Button Grid.Row="2" Grid.Column="2" MinWidth="104" HorizontalContentAlignment="Center"
+                                                    VerticalAlignment="Top"
+                                                    Content="{Binding ActionText}" IsEnabled="{Binding CanToggle}" Click="Connect_Click"
+                                                    ToolTip.Tip="{Binding DisabledReason}" />
+                                            <WrapPanel Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Center">
+                                                <Border Classes="chip" IsVisible="{Binding SupportsA2dp}">
+                                                    <TextBlock Text="A2DP" />
+                                                </Border>
+                                                <Border Classes="chip" IsVisible="{Binding IsAudio}">
+                                                    <TextBlock Text="{Binding AudioPriority, StringFormat='Audio  #{0}'}" />
+                                                </Border>
+                                                <Border Classes="chip" IsVisible="{Binding IsControl}">
+                                                    <TextBlock Text="{Binding ControlPriority, StringFormat='HID  #{0}'}" />
+                                                </Border>
+                                                <TextBlock Classes="hint" IsVisible="{Binding HasDragHint}" VerticalAlignment="Center"
+                                                           Text="{Binding DragHint}" />
+                                            </WrapPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Classes="hint" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   IsVisible="{Binding IsDevicesEmpty}"
+                                   Text="No paired phone or computer found. Pair your phone in Windows Settings and it will appear here. Other devices can be shown in Settings." />
+                    </Grid>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Row 2: Audio -->
+        <Border Grid.Row="1" Classes="panel" x:Name="AudioZone" Tag="Audio" DragDrop.AllowDrop="True">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,10">
+                    <TextBlock Classes="title" Text="Audio" />
+                    <TextBlock Classes="hint" VerticalAlignment="Center"
+                               Text="Drop a connected device here to open its audio stream. Drag it back to Available to close the stream. Drag cards to change priority (#1 first)." />
+                </StackPanel>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PointerWheelChanged="HorizontalScroll_Wheel">
+                    <Grid>
+                        <ItemsControl x:Name="AudioList" ItemsSource="{Binding AudioDevices}" MinHeight="72">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DeviceViewModel">
+                                    <Border Classes="card draggable" Tag="Audio" Width="270" Margin="0,0,10,10"
+                                            PointerPressed="Card_PointerPressed"
+                                            PointerMoved="Card_PointerMoved"
+                                            PointerReleased="Card_PointerReleased">
+                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                                            <Border Classes="badge">
+                                                <TextBlock Text="{Binding AudioPriority, StringFormat='#{0}'}" />
+                                            </Border>
+                                            <TextBlock Grid.Column="1" Classes="emoji" FontSize="22" Text="{Binding Icon}" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Name}" FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                            <Button Grid.Column="3" Classes="ghost" Content="✕" Click="RemoveAudio_Click"
+                                                    ToolTip.Tip="Close the audio stream" />
+                                            <TextBlock Grid.Row="1" Grid.ColumnSpan="4" Classes="hint" Text="{Binding StatusText}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Rectangle x:Name="AudioInsertLine" Width="3" Height="72" RadiusX="1.5" RadiusY="1.5" Fill="#4C9AFF"
+                                   HorizontalAlignment="Left" VerticalAlignment="Top" IsVisible="False" IsHitTestVisible="False" />
+                        <TextBlock Classes="hint" Text="Drop a connected device here" IsHitTestVisible="False"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsAudioEmpty}" />
+                    </Grid>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Row 3: Controllable -->
+        <Border Grid.Row="2" Classes="panel" x:Name="ControlZone" Tag="Control" DragDrop.AllowDrop="True">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="0,0,0,10">
+                    <TextBlock Classes="title" Text="Controllable" />
+                    <TextBlock Grid.Column="1" Classes="hint" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                               Text="Drop a device here to control it from this PC. Pair this PC on the phone to connect. Drag cards to change priority." />
+                </Grid>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PointerWheelChanged="HorizontalScroll_Wheel">
+                    <Grid>
+                        <ItemsControl x:Name="ControlList" ItemsSource="{Binding ControlDevices}" MinHeight="92">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DeviceViewModel">
+                                    <Border Classes="card draggable" Classes.active="{Binding IsHidActive}" Tag="Control" Width="320" Margin="0,0,10,4"
+                                            PointerPressed="Card_PointerPressed"
+                                            PointerMoved="Card_PointerMoved"
+                                            PointerReleased="Card_PointerReleased">
+                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                            <Border Classes="badge">
+                                                <TextBlock Text="{Binding ControlPriority, StringFormat='#{0}'}" />
+                                            </Border>
+                                            <TextBlock Grid.Column="1" Classes="emoji" FontSize="22" Text="{Binding Icon}" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Name}" FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                            <Button Grid.Column="3" Classes="ghost" Content="✕" Click="RemoveControl_Click"
+                                                    ToolTip.Tip="Stop controlling this device" />
+                                            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Classes="hint" Text="{Binding HidStatusText}"
+                                                       TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding HidStatusText}" VerticalAlignment="Center" />
+                                            <Button Grid.Row="1" Grid.Column="3" Classes="small accent" Content="Start control"
+                                                    IsEnabled="{Binding IsHidActive}" Click="StartControl_Click"
+                                                    ToolTip.Tip="Lock the cursor and send this PC's keyboard and mouse to the phone. Press Right Ctrl to stop." />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Rectangle x:Name="ControlInsertLine" Width="3" Height="92" RadiusX="1.5" RadiusY="1.5" Fill="#4C9AFF"
+                                   HorizontalAlignment="Left" VerticalAlignment="Top" IsVisible="False" IsHitTestVisible="False" />
+                        <TextBlock Classes="hint" Text="Drop a device here" IsHitTestVisible="False"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsControlEmpty}" />
+                    </Grid>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Event log: hidden by default. The window grows when it is shown. -->
+        <Border Grid.Row="3" Classes="panel" Padding="10,6">
+            <StackPanel Spacing="6">
+                <ToggleButton HorizontalAlignment="Left" Padding="10,4" FontSize="12"
+                              IsChecked="{Binding IsLogVisible, Mode=TwoWay}" Content="{Binding LogToggleText}"
+                              ToolTip.Tip="Show or hide the event log" />
+                <DockPanel IsVisible="{Binding IsLogVisible}" Height="150">
+                    <SelectableTextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,4"
+                                         Text="{Binding LogFilePath, StringFormat='Also saved to: {0}'}" />
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding Log}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding}" FontFamily="Consolas, monospace" FontSize="12" Foreground="#B6C0CF" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Settings panel. It sits above the rows and under the control mode banner. It must never be taller than the
+             window, because the window has a fixed size: the content scrolls when it is too long. -->
+        <Border x:Name="SettingsPanel" Grid.RowSpan="4" Classes="panel" IsVisible="{Binding IsSettingsOpen}"
+                HorizontalAlignment="Right" VerticalAlignment="Top" Width="340" MaxHeight="520"
+                BoxShadow="0 6 24 0 #80000000">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Classes="title" Text="Settings" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Classes="ghost" Content="✕" Click="CloseSettings_Click" ToolTip.Tip="Close the settings" />
+                    </Grid>
+
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="Mouse speed" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Slider Minimum="0.1" Maximum="3" SmallChange="0.1" LargeChange="0.5" Value="{Binding MouseSpeed}" />
+                            <TextBlock Grid.Column="1" Classes="hint" VerticalAlignment="Center" Width="34"
+                                       Text="{Binding MouseSpeed, StringFormat='{}{0:0.0}x'}" />
+                        </Grid>
+                        <TextBlock Classes="hint" TextWrapping="Wrap"
+                                   Text="How fast the pointer moves on the phone. Applies at once." />
+                    </StackPanel>
+
+                    <StackPanel Spacing="2">
+                        <CheckBox IsChecked="{Binding UseRawMouse}" Content="Use raw mouse input" FontWeight="SemiBold" />
+                        <TextBlock Classes="hint" TextWrapping="Wrap"
+                                   Text="Reads the mouse without Windows acceleration, like a real mouse. Applies the next time control starts." />
+                    </StackPanel>
+
+                    <StackPanel Spacing="2">
+                        <CheckBox IsChecked="{Binding ShowAllDevices}" Content="Show all paired devices" FontWeight="SemiBold" />
+                        <TextBlock Classes="hint" TextWrapping="Wrap"
+                                   Text="Off: only phones and computers are listed. On: also headsets, game controllers and others." />
+                    </StackPanel>
+
+                    <StackPanel Spacing="4" IsEnabled="{Binding IsStartupSupported}">
+                        <TextBlock Text="Start with Windows" FontWeight="SemiBold" />
+                        <ComboBox SelectedIndex="{Binding StartupModeIndex}" HorizontalAlignment="Stretch">
+                            <ComboBoxItem Content="Do not start with Windows" />
+                            <ComboBoxItem Content="Start and open the window" />
+                            <ComboBoxItem Content="Start in the tray (no window)" />
+                        </ComboBox>
+                        <TextBlock Classes="hint" TextWrapping="Wrap" Foreground="#FFB454" Text="{Binding StartupStatus}"
+                                   IsVisible="{Binding StartupStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                        <TextBlock Classes="hint" TextWrapping="Wrap"
+                                   Text="Runs when you sign in. In the tray, click the icon or use the shortcut to show the window." />
+                    </StackPanel>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Control shortcut" FontWeight="SemiBold" />
+                        <Button Content="{Binding HotkeyButtonText}" HorizontalAlignment="Left" MinWidth="220"
+                                Click="CaptureHotkey_Click" ToolTip.Tip="Click, then press the new shortcut" />
+                        <TextBlock Classes="hint" TextWrapping="Wrap" Foreground="#FFB454" Text="{Binding HotkeyStatus}"
+                                   IsVisible="{Binding HotkeyStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                        <TextBlock Classes="hint" TextWrapping="Wrap"
+                                   Text="Works everywhere. Starts control, or shows this window when no device is connected. Press it again to switch device." />
+                    </StackPanel>
+
+                    <Button Content="Reset to defaults" HorizontalAlignment="Left" Click="ResetSettings_Click" />
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Control mode banner. The cursor is hidden and locked while it shows. -->
+        <Border Grid.RowSpan="4" IsVisible="{Binding IsControlling}" IsHitTestVisible="False"
+                Background="#E60F131A" CornerRadius="12">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+                <TextBlock Text="{Binding ControlBanner}" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" />
+                <TextBlock Classes="hint" HorizontalAlignment="Center" FontSize="14"
+                           Text="Your keyboard and mouse are sent to the phone." />
+                <TextBlock Foreground="#3DDC84" FontSize="20" HorizontalAlignment="Center"
+                           Text="Press Right Ctrl to stop." />
+            </StackPanel>
+        </Border>
+    </Grid>
+        </DockPanel>
+    </Border>
+</Window>
