@@ -6,6 +6,7 @@ using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using OmniBlu.Managers;
 using OmniBlu.UI;
+using OmniBlu.ViewModels;
 
 namespace OmniBlu;
 
@@ -43,6 +44,16 @@ internal partial class App : Avalonia.Application
             }
 
             AddTrayIcon(desktop, mainWindow);
+
+            // Checks that a release copy makes a few seconds after it starts: its place, and a newer version.
+            var services = Program.HostApp.Services;
+            var maintenance = new AppMaintenance(
+                services.GetRequiredService<SettingsManager>(),
+                services.GetRequiredService<IInstallState>(),
+                services.GetRequiredService<IAutoStart>(),
+                services.GetRequiredService<MainViewModel>(),
+                () => mainWindow.IsControlling);
+            Dispatcher.UIThread.Post(() => _ = maintenance.RunAsync());
 
             // A second copy of the app asks this one to show its window.
             Program.Instance?.StartListening(() => Dispatcher.UIThread.Post(mainWindow.ShowFromTray));

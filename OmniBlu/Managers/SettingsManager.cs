@@ -92,6 +92,27 @@ public sealed class SettingsManager
         }
     }
 
+    /// <summary>True when the app looks for a new version when it starts.</summary>
+    public bool CheckForUpdates
+    {
+        get
+        {
+            lock (saveLock)
+            {
+                return Settings.CheckForUpdates;
+            }
+        }
+    }
+
+    public void SetCheckForUpdates(bool check)
+    {
+        lock (saveLock)
+        {
+            Settings.CheckForUpdates = check;
+            Save();
+        }
+    }
+
     /// <summary>The control shortcut. A missing or broken value in the file gives the default shortcut.</summary>
     public HotkeyCombo Hotkey
     {

@@ -42,6 +42,7 @@ public partial class MainViewModel : ObservableObject
     private double mouseSpeed;
     private bool useRawMouse;
     private bool showAllDevices;
+    private bool checkForUpdates;
     private readonly IAutoStart autoStart;
     private StartupMode startupMode;
     private HotkeyCombo hotkey;
@@ -58,6 +59,7 @@ public partial class MainViewModel : ObservableObject
         mouseSpeed = settings.MouseSpeed;
         useRawMouse = settings.UseRawMouse;
         showAllDevices = settings.ShowAllDevices;
+        checkForUpdates = settings.CheckForUpdates;
         hotkey = settings.Hotkey;
 
         bluetooth.DevicesChanged += (_, _) => Dispatcher.UIThread.Post(() => SyncDevices(bluetooth.Devices));
@@ -151,6 +153,20 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    /// <summary>Look for a new version when the app starts. Saved. It only works for release copies.</summary>
+    public bool CheckForUpdates
+    {
+        get => checkForUpdates;
+        set
+        {
+            if (SetProperty(ref checkForUpdates, value))
+            {
+                settings.SetCheckForUpdates(value);
+                AddLog($"Setting changed: checking for updates is {(value ? "on" : "off")}.");
+            }
+        }
+    }
+
     /// <summary>The shortcut for the whole system that starts control mode. Saved. The window registers it with the system.</summary>
     public HotkeyCombo Hotkey
     {
@@ -235,6 +251,7 @@ public partial class MainViewModel : ObservableObject
         MouseSpeed = 1.0;
         UseRawMouse = true;
         ShowAllDevices = false;
+        CheckForUpdates = true;
         Hotkey = HotkeyCombo.Default;
         if (autoStart.IsSupported)
         {

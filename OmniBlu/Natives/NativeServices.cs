@@ -22,6 +22,7 @@ internal static class NativeServices
         services.AddSingleton<IGlobalHotkey, WindowsGlobalHotkey>();
         services.AddSingleton<IKeyboardBlocker, WindowsKeyboardBlocker>();
         services.AddSingleton<IAutoStart, WindowsAutoStart>();
+        services.AddSingleton<IInstallState, WindowsInstallState>();
 #else
         services.AddSingleton<StubBluetoothService>();
         services.AddSingleton<IBluetoothService>(s => s.GetRequiredService<StubBluetoothService>());
@@ -36,6 +37,7 @@ internal static class NativeServices
         services.AddSingleton<IGlobalHotkey, StubGlobalHotkey>();
         services.AddSingleton<IKeyboardBlocker, StubKeyboardBlocker>();
         services.AddSingleton<IAutoStart, StubAutoStart>();
+        services.AddSingleton<IInstallState, StubInstallState>();
 #endif
 
         return services;

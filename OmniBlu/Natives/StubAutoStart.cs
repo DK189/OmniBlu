@@ -12,6 +12,6 @@ internal sealed class StubAutoStart : IAutoStart
 
     public StartupMode Read() => StartupMode.Off;
 
-    public bool Apply(StartupMode mode) => false;
+    public bool Apply(StartupMode mode, string exePath = null) => false;
 }
 #endif

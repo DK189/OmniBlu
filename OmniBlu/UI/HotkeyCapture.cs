@@ -87,6 +87,7 @@ internal static class HotkeyCapture
             Key.Down => "Down",
             Key.Pause => "Pause",
             Key.OemTilde => "`",
+            Key.OemQuestion => "/",
             _ => null,
         };
     }

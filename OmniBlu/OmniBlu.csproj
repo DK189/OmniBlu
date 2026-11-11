@@ -2,7 +2,13 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <!-- The versioned Windows TFM is needed for the WinRT Bluetooth and audio APIs (AudioPlaybackConnection). -->
-        <TargetFrameworks>net10.0-windows10.0.19041.0;net10.0</TargetFrameworks>
+        <!-- Linux is turned off for now (its Bluetooth part is not tested). To turn it on again, use this line instead:
+             <TargetFrameworks>net10.0-windows10.0.19041.0;net10.0</TargetFrameworks>
+             and set the target of OmniBlu.Tests back to net10.0 only when the Linux target is on again (see that project). -->
+        <TargetFrameworks>net10.0-windows10.0.19041.0</TargetFrameworks>
+
+        <!-- The release workflow replaces this with the version of the tag (-p:Version=...). -->
+        <Version>0.1.0</Version>
 
         <Nullable>disable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>

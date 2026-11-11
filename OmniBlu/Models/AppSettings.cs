@@ -22,10 +22,15 @@ public sealed class AppSettings
     public bool ShowAllDevices { get; set; }
 
     /// <summary>
-    /// Shortcut for the whole system that starts control mode, shows the window, or switches to the next device,
-    /// for example "Win+`". See <c>HotkeyCombo</c>.
+    /// Look for a new version on GitHub when the app starts (release copies only). Can be turned off in the Settings panel.
     /// </summary>
-    public string Hotkey { get; set; } = "Win+`";
+    public bool CheckForUpdates { get; set; } = true;
+
+    /// <summary>
+    /// Shortcut for the whole system that starts control mode, shows the window, or switches to the next device,
+    /// for example "Win+/". See <c>HotkeyCombo</c>.
+    /// </summary>
+    public string Hotkey { get; set; } = "Win+/";
 }
 
 /// <summary>What the user changed, and what the app learned, for one device.</summary>

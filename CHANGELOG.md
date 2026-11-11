@@ -5,6 +5,12 @@ All notable changes to OmniBlu are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- Only Windows is supported for now. The Linux target (`net10.0`) is turned off in `OmniBlu.csproj`, because the Linux Bluetooth
+  part is not tested. The Linux stub code stays in `Natives/` but is not compiled. To turn it on again, add `;net10.0` to
+  `TargetFrameworks` in `OmniBlu.csproj` (and see the note in `OmniBlu.Tests.csproj`). `OmniBlu.Tests` now targets the same Windows
+  framework, and `dotnet run` no longer asks which target to run.
+
 ### Added
 - Project skeleton: `OmniBlu.slnx` and the `OmniBlu` Avalonia 12 desktop app on .NET 10.
 - Entry point with a generic host (`Host.CreateApplicationBuilder`), service registration in `Extensions.cs`,
@@ -48,7 +54,7 @@ All notable changes to OmniBlu are documented here. The format follows
   - The Available row lists only phones and computers (by the Bluetooth device class that Windows reports), because this PC
     works as a speaker and as a keyboard and mouse for them. Headsets, game controllers and similar devices are hidden. A device
     with no class, or one that can send audio (A2DP), is always shown. "Show all paired devices" in Settings brings the others back.
-  - Control shortcut for the whole system (default Win+` , the key above Tab), so control mode can start from any program. Press it: if a device is
+  - Control shortcut for the whole system (default Win+/), so control mode can start from any program. Press it: if a device is
     connected over HID, this window comes to the front and control starts (the device used last, or the first one); if none is
     connected, the window is only shown. While control runs, press it again to switch to the next connected device (round and
     round). After control ends, the next press goes back to the device that was controlled last. The shortcut can be changed in
@@ -89,3 +95,20 @@ All notable changes to OmniBlu are documented here. The format follows
 - Windows devices are joined by container ID, because the paired-device list and the A2DP list use different IDs for the same device.
   HID clients are matched to devices by Bluetooth address instead, because the classic and LE records of one phone can have different container IDs.
 - Unit tests (xUnit) for device merging and settings.
+- Check for updates (release copies only; a copy built from source never checks and is never moved). A few seconds after start,
+  OmniBlu asks GitHub (`DK189/OmniBlu`, latest release; drafts and pre-releases are ignored) for a newer version. If there is one,
+  a window offers "Update now", "Later" (asked again at the next start; the X button also means later) or "Turn off updates".
+  "Update now" downloads the zip file, checks it against the SHA-256 file of the release, writes the new program next to the
+  old one, renames the running program to `OmniBlu.old.exe`, puts the new program in its place, and restarts. The old file is
+  deleted at the next start. If anything fails, nothing is changed. "Check for updates" in Settings turns the check off and on.
+  The question never appears while control mode runs. Limits: the SHA-256 file comes from the same release, so it proves the
+  download is complete but not who made it (that needs code signing), and the program folder must be writable.
+- Fixed folder for all users. A release copy that does not run from `C:\ProgramData\OmniBlu` asks once: "Move" copies the
+  program there, moves the "Start with Windows" entry to the new file, and starts it from there (the old file is not deleted);
+  "Keep here" runs it from where it is and is remembered for that file (`HKEY_CURRENT_USER\Software\OmniBlu`, value
+  `ApprovedExePath`; per user, because a machine-wide value needs administrator rights). There is no "later": the user must
+  choose, and the X button does nothing. If moving fails, the question comes again. Only the user who created the folder can
+  write to it, so other users of the PC can run the program but cannot update it.
+- A copy started with `--wait-pid N` (used by the update and the move) waits for process N to end before it takes the
+  single-instance lock, so it does not meet the old copy.
+- The project version is 0.1.0 (the release workflow replaces it with the version of the tag).

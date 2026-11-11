@@ -12,6 +12,9 @@ public interface IAutoStart
     /// <summary>The mode that is set now. <see cref="StartupMode.Off"/> when none is set or when it cannot be read.</summary>
     StartupMode Read();
 
-    /// <summary>Sets the mode for the program that is running now. Returns false when it could not be saved.</summary>
-    bool Apply(StartupMode mode);
+    /// <summary>
+    /// Sets the mode for the program that is running now, or for the program file <paramref name="exePath"/> when it is given
+    /// (used when the program is moved to another folder). Returns false when it could not be saved.
+    /// </summary>
+    bool Apply(StartupMode mode, string exePath = null);
 }

@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="OmniBlu.UI.ChoiceDialog"
+        Title="OmniBlu"
+        Icon="/Assets/omniblu.png"
+        Width="480" SizeToContent="Height"
+        CanResize="False" Topmost="True"
+        WindowStartupLocation="CenterScreen"
+        Background="#0F131A">
+
+    <!-- A small message box with up to three buttons. It has no owner, so it also works while the main window is hidden. -->
+    <Border Padding="22,18" BorderBrush="#2A3140" BorderThickness="1">
+        <StackPanel Spacing="14">
+            <TextBlock x:Name="TitleText" FontSize="18" FontWeight="Bold" TextWrapping="Wrap" />
+            <TextBlock x:Name="MessageText" TextWrapping="Wrap" Foreground="#C5CBD6" />
+            <StackPanel x:Name="ButtonRow" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" />
+        </StackPanel>
+    </Border>
+</Window>

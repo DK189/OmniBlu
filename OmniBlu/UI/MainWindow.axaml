@@ -299,6 +299,12 @@
                                    Text="Off: only phones and computers are listed. On: also headsets, game controllers and others." />
                     </StackPanel>
 
+                    <StackPanel Spacing="2">
+                        <CheckBox IsChecked="{Binding CheckForUpdates}" Content="Check for updates" FontWeight="SemiBold" />
+                        <TextBlock Classes="hint" TextWrapping="Wrap"
+                                   Text="Looks for a new version on GitHub when the app starts. You are asked before anything is installed." />
+                    </StackPanel>
+
                     <StackPanel Spacing="4" IsEnabled="{Binding IsStartupSupported}">
                         <TextBlock Text="Start with Windows" FontWeight="SemiBold" />
                         <ComboBox x:Name="StartupBox" SelectedIndex="{Binding StartupModeIndex}" HorizontalAlignment="Stretch">

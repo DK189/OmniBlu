@@ -12,13 +12,13 @@ public enum HotkeyModifiers
 }
 
 /// <summary>
-/// A keyboard shortcut for the whole system, for example "Win+`" or "Ctrl+Alt+B". It always has at least one modifier, so it can
+/// A keyboard shortcut for the whole system, for example "Win+/" or "Ctrl+Alt+B". It always has at least one modifier, so it can
 /// never take over a plain key.
 /// </summary>
 public sealed record HotkeyCombo(HotkeyModifiers Modifiers, string Key)
 {
     /// <summary>The shortcut used when the user has not chosen one.</summary>
-    public const string DefaultText = "Win+`";
+    public const string DefaultText = "Win+/";
 
     private static readonly Dictionary<string, int> NamedKeys = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -35,6 +35,7 @@ public sealed record HotkeyCombo(HotkeyModifiers Modifiers, string Key)
         ["Delete"] = 0x2E,
         ["Pause"] = 0x13,
         ["`"] = 0xC0, // the key above Tab
+        ["/"] = 0xBF, // the slash key
     };
 
     /// <summary>The default shortcut.</summary>
@@ -45,7 +46,7 @@ public sealed record HotkeyCombo(HotkeyModifiers Modifiers, string Key)
 
     /// <summary>
     /// Reads text such as "Ctrl+Alt+B". Keys that can be used: letters, digits, F1 to F12, Space, the arrow keys,
-    /// Home, End, PageUp, PageDown, Insert, Delete, Pause and the ` key (above Tab). At least one modifier is needed.
+    /// Home, End, PageUp, PageDown, Insert, Delete, Pause, the ` key (above Tab) and the / key. At least one modifier is needed.
     /// </summary>
     public static bool TryParse(string text, out HotkeyCombo combo)
     {

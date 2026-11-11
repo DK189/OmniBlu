@@ -27,6 +27,15 @@ sealed class Program
     {
         // Only one copy runs. A second copy asks the first one to show its window and exits. A copy that Windows started
         // in the tray (--tray) must stay quiet, so it does not ask.
+        // A copy that was started by an update or a move waits for the old copy to end first. Without this it would find the
+        // single-instance lock still taken, ask the old copy to show its window, and exit. The wait is longer than the time
+        // the old copy needs to stop its Bluetooth parts (about 6 seconds at most).
+        var waitPid = ProcessRestart.ParseWaitPid(args);
+        if (waitPid > 0)
+        {
+            ProcessRestart.WaitForExit(waitPid, 30000);
+        }
+
         Instance = SingleInstance.TryAcquire(InstanceName);
         if (Instance == null)
         {

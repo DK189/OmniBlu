@@ -43,11 +43,11 @@ internal sealed class WindowsAutoStart : IAutoStart
         }
     }
 
-    public bool Apply(StartupMode mode)
+    public bool Apply(StartupMode mode, string exePath = null)
     {
         try
         {
-            var path = Environment.ProcessPath;
+            var path = exePath ?? Environment.ProcessPath;
             if (mode != StartupMode.Off && string.IsNullOrEmpty(path))
             {
                 LastError = "The path of the program is not known.";

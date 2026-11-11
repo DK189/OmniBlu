@@ -46,12 +46,24 @@ public class HotkeyTests
     }
 
     [Fact]
-    public void The_key_above_tab_can_be_used_and_the_default_shortcut_is_win_and_that_key()
+    public void The_key_above_tab_and_the_slash_key_can_be_used()
     {
-        Assert.True(HotkeyCombo.TryParse("win + `", out var combo));
-        Assert.Equal("Win+`", combo.ToString());
-        Assert.Equal(0xC0, combo.VirtualKey);
-        Assert.Equal("Win+`", HotkeyCombo.DefaultText);
+        Assert.True(HotkeyCombo.TryParse("win + `", out var tilde));
+        Assert.Equal("Win+`", tilde.ToString());
+        Assert.Equal(0xC0, tilde.VirtualKey);
+
+        Assert.True(HotkeyCombo.TryParse("ctrl+/", out var slash));
+        Assert.Equal("Ctrl+/", slash.ToString());
+        Assert.Equal(0xBF, slash.VirtualKey);
+    }
+
+    [Fact]
+    public void The_default_shortcut_is_win_and_the_slash_key()
+    {
+        Assert.Equal("Win+/", HotkeyCombo.DefaultText);
+        Assert.Equal(HotkeyModifiers.Win, HotkeyCombo.Default.Modifiers);
+        Assert.Equal(0xBF, HotkeyCombo.Default.VirtualKey);
+        Assert.Equal(HotkeyCombo.DefaultText, new OmniBlu.Models.AppSettings().Hotkey);
     }
 
     [Theory]
@@ -59,6 +71,7 @@ public class HotkeyTests
     [InlineData("Win+`", 0xC0, false, false, false, false, false)]   // Windows key not held
     [InlineData("Win+`", 0xC0, true, false, false, true, false)]     // an extra modifier is held
     [InlineData("Win+`", 0x41, false, false, false, true, false)]    // another key
+    [InlineData("Win+/", 0xBF, false, false, false, true, true)]
     [InlineData("Ctrl+Win+`", 0xC0, true, false, false, true, true)]
     [InlineData("Ctrl+Win+`", 0xC0, false, false, false, true, false)]
     [InlineData("Ctrl+Alt+O", 0x4F, true, true, false, false, false)] // no Windows key: the system handles it

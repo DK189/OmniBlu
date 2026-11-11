@@ -117,6 +117,9 @@ public partial class MainWindow : Window
         window.AddHandler(PointerWheelChangedEvent, ControlWheel, RoutingStrategies.Tunnel, handledEventsToo: true);
     }
 
+    /// <summary>True while control mode runs. Questions and dialogs wait for it to end, because they would take the focus.</summary>
+    public bool IsControlling => controlSession != null;
+
     /// <summary>True when this window is on the screen and not minimized.</summary>
     private bool IsShown => IsVisible && WindowState != WindowState.Minimized;
 
@@ -280,7 +283,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            ViewModel.HotkeyStatus = "Hold Ctrl, Alt, Shift or Win and press a letter, digit, F1 to F12, Space, the ` key or a navigation key.";
+            ViewModel.HotkeyStatus = "Hold Ctrl, Alt, Shift or Win and press a letter, digit, F1 to F12, Space, the ` or / key, or a navigation key.";
         }
     }
 
