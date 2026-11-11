@@ -5,6 +5,10 @@ All notable changes to OmniBlu are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-11
+
+First release. Windows only for now.
+
 ### Changed
 - Only Windows is supported for now. The Linux target (`net10.0`) is turned off in `OmniBlu.csproj`, because the Linux Bluetooth
   part is not tested. The Linux stub code stays in `Natives/` but is not compiled. To turn it on again, add `;net10.0` to
