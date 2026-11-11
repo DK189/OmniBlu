@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using OmniBlu.Managers;
 using OmniBlu.UI;
@@ -42,6 +43,9 @@ internal partial class App : Avalonia.Application
             }
 
             AddTrayIcon(desktop, mainWindow);
+
+            // A second copy of the app asks this one to show its window.
+            Program.Instance?.StartListening(() => Dispatcher.UIThread.Post(mainWindow.ShowFromTray));
         }
 
         base.OnFrameworkInitializationCompleted();

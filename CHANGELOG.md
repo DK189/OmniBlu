@@ -76,6 +76,9 @@ All notable changes to OmniBlu are documented here. The format follows
     administrator rights), as the full path of the program that is running when the choice is made, so choose it again if the
     program is moved. Windows keeps the choice, so Settings reads it from Windows each time. "Reset to defaults" turns it off.
     A start in the tray uses the `--tray` argument; the window is created but not shown until the tray icon or the shortcut asks.
+  - Only one copy of the app runs for each user (a named mutex). Starting a second copy shows the window of the first one
+    (also when it is in the tray) and the second copy exits. A copy that Windows starts with `--tray` stays quiet and does not
+    show the window.
   - Mouse speed setting (saved). Slow movement is not lost to rounding at low speeds.
   - When control mode ends, the log gets one line about the mouse (movements, report sizes, backlog, slowest send), to tell a stalled
     Bluetooth link from a mouse that moved too fast.

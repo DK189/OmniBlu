@@ -12,13 +12,33 @@ sealed class Program
 {
     private static readonly TimeSpan ShutdownTimeout = TimeSpan.FromSeconds(6);
 
+    /// <summary>The name that makes the app run only once for each user.</summary>
+    private const string InstanceName = "OmniBlu.SingleInstance";
+
     public static IHost HostApp { get; private set; }
+
+    /// <summary>Ownership of the single running copy. Used to hear a second copy that asks for the window.</summary>
+    public static SingleInstance Instance { get; private set; }
 
     // Entry point. Do not use Avalonia, third-party APIs or anything that depends on
     // SynchronizationContext before the host is built: they are not initialized yet.
     [STAThread]
     public static void Main(string[] args)
     {
+        // Only one copy runs. A second copy asks the first one to show its window and exits. A copy that Windows started
+        // in the tray (--tray) must stay quiet, so it does not ask.
+        Instance = SingleInstance.TryAcquire(InstanceName);
+        if (Instance == null)
+        {
+            if (!StartupCommand.StartsInTray(args))
+            {
+                SingleInstance.SignalExisting(InstanceName, 2000);
+            }
+
+            Console.WriteLine("OmniBlu is already running. Its window was asked to show.");
+            return;
+        }
+
         try
         {
             Console.WriteLine("OmniBlu is starting...");
@@ -74,6 +94,10 @@ sealed class Program
         {
             Console.Error.WriteLine(ex);
             HostApp?.Services.GetService<FileLog>()?.Write("Fatal error in Main.", ex);
+        }
+        finally
+        {
+            Instance.Dispose();
         }
     }
 
