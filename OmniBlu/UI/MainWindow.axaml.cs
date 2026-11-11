@@ -225,6 +225,13 @@ public partial class MainWindow : Window
             return;
         }
 
+        // The list of a combo box opens in a popup of its own. It is not inside the panel, but it belongs to it: a click
+        // on one of its items must not close the panel. While the list is open, the click only closes the list.
+        if (StartupBox.IsDropDownOpen || TopLevel.GetTopLevel(source) != this)
+        {
+            return;
+        }
+
         if (!SettingsPanel.IsVisualAncestorOf(source) && !SettingsToggle.IsVisualAncestorOf(source))
         {
             ViewModel.IsSettingsOpen = false;

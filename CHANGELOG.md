@@ -43,7 +43,8 @@ All notable changes to OmniBlu are documented here. The format follows
     Raw counts depend on the DPI of the mouse, so the Mouse speed slider may need adjusting.
   - Settings panel (the "Settings" button at the top right of the window). It holds the Mouse speed slider (moved here from the
     Controllable row), a check box for raw mouse input, and "Reset to defaults". Choices are saved. The panel closes when control
-    mode starts, when you click outside it, and when the window loses focus.
+    mode starts, when you click outside it, and when the window loses focus. A click on an item in the list of a combo box (which opens in its own popup)
+    does not count as outside, so the list can be used with the mouse.
   - The Available row lists only phones and computers (by the Bluetooth device class that Windows reports), because this PC
     works as a speaker and as a keyboard and mouse for them. Headsets, game controllers and similar devices are hidden. A device
     with no class, or one that can send audio (A2DP), is always shown. "Show all paired devices" in Settings brings the others back.

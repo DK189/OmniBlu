@@ -301,7 +301,7 @@
 
                     <StackPanel Spacing="4" IsEnabled="{Binding IsStartupSupported}">
                         <TextBlock Text="Start with Windows" FontWeight="SemiBold" />
-                        <ComboBox SelectedIndex="{Binding StartupModeIndex}" HorizontalAlignment="Stretch">
+                        <ComboBox x:Name="StartupBox" SelectedIndex="{Binding StartupModeIndex}" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="Do not start with Windows" />
                             <ComboBoxItem Content="Start and open the window" />
                             <ComboBoxItem Content="Start in the tray (no window)" />
