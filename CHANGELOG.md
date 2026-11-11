@@ -112,3 +112,8 @@ All notable changes to OmniBlu are documented here. The format follows
 - A copy started with `--wait-pid N` (used by the update and the move) waits for process N to end before it takes the
   single-instance lock, so it does not meet the old copy.
 - The project version is 0.1.0 (the release workflow replaces it with the version of the tag).
+- GitHub Actions workflow (`.github/workflows/release.yml`). Pushing a tag like `v1.2.3` builds the app on Windows, runs the tests,
+  and publishes a GitHub release with `OmniBlu-<version>-win-x64.zip` (one self-contained `OmniBlu.exe`, no .NET install needed,
+  about 50 MB) and a SHA-256 file. A tag with a dash (`v1.2.3-beta.1`) is published as a pre-release. The tag must look like a
+  version, or the run stops. The workflow can also be run by hand (Actions tab, "Run workflow"): that builds, tests, publishes
+  and zips the program but makes no tag and no release, and can keep the zip file as a workflow artifact for 3 days.
