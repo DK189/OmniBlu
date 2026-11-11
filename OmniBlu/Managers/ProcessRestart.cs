@@ -41,11 +41,33 @@ public static class ProcessRestart
         return 0;
     }
 
-    /// <summary>Starts <paramref name="exePath"/> and tells it to wait for the current process to end.</summary>
-    public static void StartAndWait(string exePath) => Start(exePath, Environment.ProcessId);
+    /// <summary>
+    /// Loads and compiles what <see cref="Start"/> needs. Call it BEFORE the program file is replaced. A single-file program
+    /// loads its libraries from its own file when they are first used. After the file was renamed and replaced, a library that was
+    /// not loaded yet cannot be found any more, so the restart would fail (a FileNotFoundException when entering Start). This
+    /// happens when the copy was started normally (a copy started with --wait-pid has loaded the library already).
+    /// </summary>
+    public static void Prepare()
+    {
+        using (var current = Process.GetCurrentProcess())
+        {
+            _ = current.Id;
+        }
+
+        _ = new ProcessStartInfo("prepare").ArgumentList;
+        _ = typeof(System.ComponentModel.Win32Exception);
+        System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(typeof(ProcessRestart).GetMethod(nameof(Start))!.MethodHandle);
+        System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(typeof(ProcessRestart).GetMethod(nameof(StartAndWait))!.MethodHandle);
+    }
+
+    /// <summary>
+    /// Starts <paramref name="exePath"/> and tells it to wait for the current process to end. With <paramref name="startInTray"/>
+    /// the new copy starts in the tray too (used when the restart is silent and the user did not see a window).
+    /// </summary>
+    public static void StartAndWait(string exePath, bool startInTray = false) => Start(exePath, Environment.ProcessId, startInTray);
 
     /// <summary>Starts <paramref name="exePath"/> and tells it to wait for process <paramref name="waitPid"/>.</summary>
-    public static void Start(string exePath, int waitPid)
+    public static void Start(string exePath, int waitPid, bool startInTray = false)
     {
         var info = new ProcessStartInfo(exePath)
         {
@@ -54,6 +76,11 @@ public static class ProcessRestart
         };
         info.ArgumentList.Add(WaitArgument);
         info.ArgumentList.Add(waitPid.ToString());
+        if (startInTray)
+        {
+            info.ArgumentList.Add(StartupCommand.TrayArgument);
+        }
+
         Process.Start(info)?.Dispose();
     }
 

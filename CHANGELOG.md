@@ -5,6 +5,36 @@ All notable changes to OmniBlu are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-11
+
+### Added
+- When the app is already running and the user opens another copy by hand, the second copy tells the running copy its version and
+  file (through the single-instance pipe) and ends. If that file is an OmniBlu program with a newer version (the running copy
+  reads the version and the product name from the file itself and does not trust the message), the running copy asks:
+  "Replace and restart" copies that file over the running program (nothing is downloaded, same steps as an update) and restarts;
+  "Not now" keeps the running version. A file with the same or an older version only shows the window. A development copy never
+  asks. The pipe reads one request at a time with a time limit (2 seconds) and a size limit, so a slow or noisy client cannot
+  block it.
+
+### Fixed
+- Restarting after an update, or after replacing the program with a newer copy, failed with a `FileNotFoundException` when the
+  copy had been started normally. A single-file program loads a library from its own file the first time the library is used,
+  and the file had been renamed by then. What the restart needs is now loaded before the file is replaced. If the restart still
+  fails after the file was replaced, the message says that the new version is installed and OmniBlu must be started again (before,
+  it said that the update failed). Version 1.0.0 has this problem: a copy that was started normally may show "The update failed"
+  after an update although the new version was installed; starting OmniBlu again runs the new version.
+
+### Changed
+- The question about the fixed folder (`C:\ProgramData\OmniBlu`) now comes before any window of the app is shown. The main
+  window appears only after the user has chosen. The program in the fixed folder is always named `OmniBlu.exe`.
+- A release copy that runs from another place and finds an installed copy in the fixed folder does not ask: if the installed
+  copy has the same or a newer version, it starts the installed copy and ends; if this copy is newer, it copies itself over
+  the installed copy, starts it, and ends. (The user installed it before, so no question.) If the installed copy cannot be
+  replaced (for example it is in use) or its version cannot be read, the user is asked as before. A copy that the user chose
+  to keep ("Keep here") is left alone. When the app was started in the tray, the copy that it hands over to also starts in the tray.
+- README describes what OmniBlu does, how to install, use, update and build it, and how to make a release (it said "cross-platform"
+  before; only Windows is supported for now).
+
 ## [1.0.0] - 2026-11-11
 
 First release. Windows only for now.

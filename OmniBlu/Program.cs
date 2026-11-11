@@ -41,7 +41,9 @@ sealed class Program
         {
             if (!StartupCommand.StartsInTray(args))
             {
-                SingleInstance.SignalExisting(InstanceName, 2000);
+                // The message tells the running copy which version and file this copy has. If this copy is newer, the running
+                // copy offers to replace itself with it (see AppMaintenance.OfferNewerCopyAsync).
+                SingleInstance.SignalExisting(InstanceName, 2000, InstanceMessage.Build(AppVersion.Current, Environment.ProcessPath));
             }
 
             Console.WriteLine("OmniBlu is already running. Its window was asked to show.");

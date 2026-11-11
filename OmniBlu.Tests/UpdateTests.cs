@@ -126,15 +126,81 @@ public class InstallLocationTests
         Assert.Equal(expected, InstallLocation.IsInFolder(exe, Global));
     }
 
-    [Theory]
-    [InlineData(true, @"C:\Users\King\Downloads\OmniBlu.exe", null, true)]
-    [InlineData(true, @"C:\Users\King\Downloads\OmniBlu.exe", @"C:\Users\King\Downloads\OmniBlu.exe", false)]
-    [InlineData(true, @"C:\Users\King\Downloads\OmniBlu.exe", @"C:\Other\OmniBlu.exe", true)]
-    [InlineData(true, @"C:\ProgramData\OmniBlu\OmniBlu.exe", null, false)]
-    [InlineData(false, @"C:\Users\King\Downloads\OmniBlu.exe", null, false)]
-    public void The_user_is_asked_only_for_an_unconfirmed_release_copy_outside_the_fixed_folder(bool release, string exe, string approved, bool expected)
+    private const string Outside = @"C:\Users\King\Downloads\OmniBlu.exe";
+
+    private static StartupPlan Plan(
+        bool release = true, string exe = Outside, string approved = null, bool installed = false, string installedVersion = null, string current = "1.0.0") =>
+        InstallLocation.PlanStartup(release, exe, approved, Global, installed, installedVersion, current);
+
+    [Fact]
+    public void Nothing_is_done_for_a_development_run_a_copy_in_the_fixed_folder_or_a_copy_the_user_kept()
     {
-        Assert.Equal(expected, InstallLocation.NeedsPrompt(release, exe, approved, Global));
+        Assert.Equal(StartupPlan.Continue, Plan(release: false));
+        Assert.Equal(StartupPlan.Continue, Plan(exe: @"C:\ProgramData\OmniBlu\OmniBlu.exe"));
+        Assert.Equal(StartupPlan.Continue, Plan(approved: Outside));
+        Assert.Equal(StartupPlan.Continue, Plan(approved: Outside, installed: true, installedVersion: "0.5.0"));
+    }
+
+    [Fact]
+    public void A_release_copy_outside_the_fixed_folder_asks_when_nothing_is_installed_there()
+    {
+        Assert.Equal(StartupPlan.Ask, Plan());
+        Assert.Equal(StartupPlan.Ask, Plan(approved: @"C:\Other\OmniBlu.exe")); // another file was approved, not this one
+    }
+
+    [Theory]
+    [InlineData("1.0.0", "1.0.1", StartupPlan.ReplaceThenRunFixed)]  // this copy is newer: copy it over, no question
+    [InlineData("1.0.0", "1.0.0", StartupPlan.RunFixed)]             // the same: start the installed one
+    [InlineData("1.0.1", "1.0.0", StartupPlan.RunFixed)]             // the installed one is newer: start it, never go back
+    [InlineData("1.0.0+abc123", "1.0.1", StartupPlan.ReplaceThenRunFixed)]
+    [InlineData("1.0.0-beta.1", "1.0.0", StartupPlan.ReplaceThenRunFixed)]
+    [InlineData("1.0.0", "1.0.0-beta.1", StartupPlan.RunFixed)]
+    public void When_a_copy_is_installed_the_newer_version_wins_without_a_question(string installedVersion, string current, StartupPlan expected)
+    {
+        Assert.Equal(expected, Plan(installed: true, installedVersion: installedVersion, current: current));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("garbage")]
+    public void An_installed_copy_with_an_unreadable_version_is_not_guessed_and_the_user_decides(string installedVersion)
+    {
+        Assert.Equal(StartupPlan.Ask, Plan(installed: true, installedVersion: installedVersion));
+    }
+
+    [Fact]
+    public void The_installed_file_has_a_fixed_name_whatever_the_name_of_the_file_that_was_copied()
+    {
+        Assert.Equal(@"C:\ProgramData\OmniBlu\OmniBlu.exe", InstallLocation.GlobalExePath(Global));
+    }
+
+    [Fact]
+    public void The_version_of_a_program_file_is_read_and_a_missing_file_gives_nothing()
+    {
+        var thisFile = typeof(InstallLocationTests).Assembly.Location;
+        Assert.False(string.IsNullOrEmpty(InstallLocation.ReadFileVersion(thisFile)));
+        Assert.Null(InstallLocation.ReadFileVersion(Path.Combine(Path.GetTempPath(), "does-not-exist-" + Guid.NewGuid().ToString("N") + ".exe")));
+    }
+
+    [Fact]
+    public void A_copy_with_another_name_is_stored_under_the_fixed_name()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "omniblu-test-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(root);
+            var source = Path.Combine(root, "OmniBlu (1).exe");
+            File.WriteAllText(source, "x");
+
+            var target = InstallLocation.CopyToFolder(source, Path.Combine(root, "global"));
+
+            Assert.Equal(Path.Combine(root, "global", "OmniBlu.exe"), target);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
     }
 
     [Fact]
@@ -253,6 +319,27 @@ public class ProcessRestartTests
     public void The_process_to_wait_for_is_read_from_the_arguments(string[] args, int expected)
     {
         Assert.Equal(expected, ProcessRestart.ParseWaitPid(args));
+    }
+
+    [Fact]
+    public void The_restart_argument_for_a_silent_start_in_the_tray_is_read_by_the_tray_check()
+    {
+        // ProcessRestart adds "--tray" after "--wait-pid N" when the restart is silent. Both must be found by the readers.
+        var args = new[] { ProcessRestart.WaitArgument, "123", StartupCommand.TrayArgument };
+
+        Assert.Equal(123, ProcessRestart.ParseWaitPid(args));
+        Assert.True(StartupCommand.StartsInTray(args));
+    }
+
+    [Fact]
+    public void Preparing_the_restart_does_not_start_anything_and_can_be_repeated()
+    {
+        var before = System.Diagnostics.Process.GetProcessesByName("OmniBlu").Length;
+
+        ProcessRestart.Prepare();
+        ProcessRestart.Prepare();
+
+        Assert.Equal(before, System.Diagnostics.Process.GetProcessesByName("OmniBlu").Length);
     }
 
     [Fact]

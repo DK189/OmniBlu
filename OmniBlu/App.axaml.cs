@@ -32,31 +32,62 @@ internal partial class App : Avalonia.Application
             var mainWindow = Program.HostApp.Services.GetRequiredService<MainWindow>();
             mainWindow.Closed += (_, _) => desktop.Shutdown();
 
-            if (StartupCommand.StartsInTray(desktop.Args))
-            {
-                // Avalonia shows the main window of the lifetime when it starts, so it is not set. The window is created
-                // and is shown later (tray icon or shortcut).
-                mainWindow.PrepareHidden();
-            }
-            else
-            {
-                desktop.MainWindow = mainWindow;
-            }
-
-            AddTrayIcon(desktop, mainWindow);
-
-            // Checks that a release copy makes a few seconds after it starts: its place, and a newer version.
+            var startInTray = StartupCommand.StartsInTray(desktop.Args);
             var services = Program.HostApp.Services;
             var maintenance = new AppMaintenance(
                 services.GetRequiredService<SettingsManager>(),
                 services.GetRequiredService<IInstallState>(),
                 services.GetRequiredService<IAutoStart>(),
                 services.GetRequiredService<MainViewModel>(),
-                () => mainWindow.IsControlling);
-            Dispatcher.UIThread.Post(() => _ = maintenance.RunAsync());
+                () => mainWindow.IsControlling,
+                startInTray);
 
-            // A second copy of the app asks this one to show its window.
-            Program.Instance?.StartListening(() => Dispatcher.UIThread.Post(mainWindow.ShowFromTray));
+            // Nothing is shown at first, because a release copy may have to ask about its place (or hand over to the copy that is
+            // installed). The main window of the lifetime is therefore not set here: Avalonia would show it at once.
+            var ready = false;
+
+            // A second copy of the app asks this one to show its window. It also says which version and file it has: if it is
+            // newer, this copy offers to replace itself with it (the user opened it by hand, so a question is the right answer).
+            Program.Instance?.StartListening(text => Dispatcher.UIThread.Post(() =>
+            {
+                if (!ready)
+                {
+                    return;
+                }
+
+                mainWindow.ShowFromTray();
+                var request = InstanceMessage.Parse(text);
+                if (request != null)
+                {
+                    _ = maintenance.OfferNewerCopyAsync(request);
+                }
+            }));
+
+            Dispatcher.UIThread.Post(async () =>
+            {
+                // 1. Before any window: the place of the program. This may end this copy and start another file.
+                if (await maintenance.RunLocationStepAsync())
+                {
+                    return;
+                }
+
+                // 2. Now the app shows itself, or stays in the tray.
+                ready = true;
+                if (startInTray)
+                {
+                    mainWindow.PrepareHidden();
+                }
+                else
+                {
+                    desktop.MainWindow = mainWindow;
+                    mainWindow.Show();
+                }
+
+                AddTrayIcon(desktop, mainWindow);
+
+                // 3. A little later: a newer version on GitHub.
+                await maintenance.RunUpdateStepAsync();
+            });
         }
 
         base.OnFrameworkInitializationCompleted();
