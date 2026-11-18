@@ -5,6 +5,8 @@ All notable changes to OmniBlu are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-19
+
 ### Added
 - "Pair a new device" button in the Controllable row (pairing mode). A computer or phone that was never paired has no card, so it
   could not be dropped in the Controllable row; then this PC did not advertise and the other device could not find it. The
