@@ -162,6 +162,19 @@ public partial class MainWindow : Window
     private async void RemoveControl_Click(object sender, RoutedEventArgs e) =>
         await RunAsync(sender, "Stop control", ViewModel.UnassignControlAsync);
 
+    /// <summary>Starts pairing mode (advertise with no device) or stops it. An exception must never escape an async void handler.</summary>
+    private async void PairNew_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await ViewModel.TogglePairingAsync();
+        }
+        catch (Exception ex)
+        {
+            ViewModel.AddLog($"Pairing mode failed: {ex.Message}");
+        }
+    }
+
     /// <summary>Runs an action for the device of a button. An exception must never escape an async void handler.</summary>
     private async Task RunAsync(object sender, string what, Func<DeviceViewModel, Task> action)
     {

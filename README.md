@@ -31,6 +31,8 @@ The window has three rows:
 2. **Audio**: drag a connected device here to open its audio stream. Drag it back to Available to close the stream. Drag cards to change the priority.
 3. **Controllable**: drag a device here to control it from this PC. OmniBlu starts advertising, and the phone connects after you pair this PC on the phone. Press **Start control** on a card to begin.
 
+   A device that was never paired has no card to drag. Press **Pair a new device** in this row: OmniBlu advertises for 2 minutes with no card. On the other device, look for the name of this PC in the Bluetooth list and pair. When it connects, its card appears in Available and pairing mode ends; drag the card to Controllable.
+
 **Control mode** hides and locks the mouse cursor, and sends every key and mouse action to the phone. It ends with **Right Ctrl**, when the window loses focus, or when the phone stops accepting input. While it runs, the Windows key, Alt+Tab, Alt+Esc and Ctrl+Esc go to the phone and not to this PC. Ctrl+Alt+Del always stays with the PC, because no program can take it.
 
 **Control shortcut** (default **Win+/**, works in every program):

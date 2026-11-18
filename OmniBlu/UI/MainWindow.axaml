@@ -195,10 +195,13 @@
         <!-- Row 3: Controllable -->
         <Border Grid.Row="2" Classes="panel" x:Name="ControlZone" Tag="Control" DragDrop.AllowDrop="True">
             <DockPanel>
-                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="0,0,0,10">
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Margin="0,0,0,10">
                     <TextBlock Classes="title" Text="Controllable" />
                     <TextBlock Grid.Column="1" Classes="hint" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
-                               Text="Drop a device here to control it from this PC. Pair this PC on the phone to connect. Drag cards to change priority." />
+                               Text="{Binding ControlHeaderHint}" />
+                    <Button Grid.Column="2" Classes="small" Content="{Binding PairingButtonText}" Click="PairNew_Click"
+                            VerticalAlignment="Center" Height="20" MinHeight="0" Padding="10,0"
+                            ToolTip.Tip="Advertise for 2 minutes without a device, so a computer or phone that was never paired can find this PC and pair" />
                 </Grid>
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PointerWheelChanged="HorizontalScroll_Wheel">
                     <Grid>

@@ -293,6 +293,10 @@ public class HidControlSessionTests
 
         public Task DisableAsync(string key) => Task.CompletedTask;
 
+        public Task<bool> StartPairingAsync() => Task.FromResult(false);
+
+        public Task StopPairingAsync() => Task.CompletedTask;
+
         public Task<bool> SendClickAsync(string key) => Task.FromResult(true);
 
         public Task<bool> SendKeyAsync(string key, byte usage, byte modifiers = 0) => Task.FromResult(true);
@@ -634,6 +638,10 @@ public class MousePacingTests
 
         public Task DisableAsync(string key) => Task.CompletedTask;
 
+        public Task<bool> StartPairingAsync() => Task.FromResult(false);
+
+        public Task StopPairingAsync() => Task.CompletedTask;
+
         public Task<bool> SendClickAsync(string key) => Task.FromResult(true);
 
         public Task<bool> SendKeyAsync(string key, byte usage, byte modifiers = 0) => Task.FromResult(true);
@@ -783,6 +791,10 @@ public class RawMouseTests
         public Task<bool> EnableAsync(string key) => Task.FromResult(true);
 
         public Task DisableAsync(string key) => Task.CompletedTask;
+
+        public Task<bool> StartPairingAsync() => Task.FromResult(false);
+
+        public Task StopPairingAsync() => Task.CompletedTask;
 
         public Task<bool> SendClickAsync(string key) => Task.FromResult(true);
 

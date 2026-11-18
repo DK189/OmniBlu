@@ -42,6 +42,7 @@ public partial class MainViewModel : ObservableObject
     private double mouseSpeed;
     private bool useRawMouse;
     private bool showAllDevices;
+    private readonly PairingMode pairingMode;
     private bool checkForUpdates;
     private readonly IAutoStart autoStart;
     private StartupMode startupMode;
@@ -69,6 +70,9 @@ public partial class MainViewModel : ObservableObject
         hid.StateChanged += (_, e) => Dispatcher.UIThread.Post(() => ApplyHidState(e));
         hid.UnknownClientConnected += (_, e) => Dispatcher.UIThread.Post(() => AddHidOnlyDevice(e));
         hid.LogMessage += (_, message) => Dispatcher.UIThread.Post(() => AddLog(message));
+
+        pairingMode = new PairingMode(hid, PairingMode.DefaultDuration);
+        pairingMode.Changed += (_, e) => Dispatcher.UIThread.Post(() => OnPairingChanged(e));
 
         AddLog("OmniBlu started.");
         SyncDevices(bluetooth.Devices);
@@ -116,6 +120,49 @@ public partial class MainViewModel : ObservableObject
 
     /// <summary>Text of the button that shows or hides the event log.</summary>
     public string LogToggleText => IsLogVisible ? "▾ Event log" : "▸ Event log";
+
+    private const string ControlHintText =
+        "Drop a device here to control it from this PC. Pair this PC on the phone to connect. Drag cards to change priority.";
+
+    /// <summary>True while pairing mode is on: this PC advertises with no device in the Controllable row, so a new device can pair.</summary>
+    public bool IsPairing => pairingMode.IsActive;
+
+    /// <summary>Text of the button in the Controllable header.</summary>
+    public string PairingButtonText => IsPairing ? "Stop pairing" : "Pair a new device";
+
+    /// <summary>The hint in the Controllable header. While pairing mode is on, it tells what to do on the other device.</summary>
+    public string ControlHeaderHint => IsPairing
+        ? $"Pairing is on. On the other device, look for \"{Environment.MachineName}\" in the Bluetooth list and pair. It stops after {(int)pairingMode.Duration.TotalMinutes} minutes."
+        : ControlHintText;
+
+    /// <summary>Starts pairing mode, or stops it when it is on.</summary>
+    public async Task TogglePairingAsync()
+    {
+        if (pairingMode.IsActive)
+        {
+            await pairingMode.StopAsync();
+        }
+        else if (!await pairingMode.StartAsync())
+        {
+            AddLog("Pairing mode could not start.");
+        }
+    }
+
+    private void OnPairingChanged(PairingChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(IsPairing));
+        OnPropertyChanged(nameof(PairingButtonText));
+        OnPropertyChanged(nameof(ControlHeaderHint));
+
+        AddLog(e.IsActive
+            ? $"Pairing mode is on for {(int)pairingMode.Duration.TotalMinutes} minutes."
+            : e.Reason switch
+            {
+                PairingEndReason.TimeUp => "Pairing mode ended: the time is up.",
+                PairingEndReason.DeviceConnected => "Pairing mode ended: a new device connected. Drag its card to Controllable.",
+                _ => "Pairing mode stopped.",
+            });
+    }
 
     /// <summary>True while the Settings panel is shown.</summary>
     [ObservableProperty]

@@ -57,8 +57,17 @@ public interface IHidService
     /// <summary>Allows this PC to send input to the device. Starts advertising if needed.</summary>
     Task<bool> EnableAsync(string key);
 
-    /// <summary>Stops sending input to the device. Stops advertising when no device is enabled.</summary>
+    /// <summary>Stops sending input to the device. Stops advertising when no device is enabled and pairing mode is off.</summary>
     Task DisableAsync(string key);
+
+    /// <summary>
+    /// Starts advertising for pairing, with no device enabled, so a computer or phone that was never paired can find this PC.
+    /// A device that connects is reported through <see cref="UnknownClientConnected"/>. Returns false when advertising cannot start.
+    /// </summary>
+    Task<bool> StartPairingAsync();
+
+    /// <summary>Ends advertising for pairing. Advertising goes on only while a device is enabled.</summary>
+    Task StopPairingAsync();
 
     /// <summary>Presses and releases the left mouse button on the device.</summary>
     Task<bool> SendClickAsync(string key);

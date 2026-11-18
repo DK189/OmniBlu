@@ -5,6 +5,14 @@ All notable changes to OmniBlu are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- "Pair a new device" button in the Controllable row (pairing mode). A computer or phone that was never paired has no card, so it
+  could not be dropped in the Controllable row; then this PC did not advertise and the other device could not find it. The
+  button makes this PC advertise as a Bluetooth keyboard and mouse for 2 minutes with no card. The header hint tells what to
+  look for on the other device (the computer name). Pairing mode ends by itself when the time is up, when a new device connects
+  over HID (its card is added to the list and you drag it to Controllable), or when you press "Stop pairing". A device that is
+  in the Controllable row keeps the advertising on after pairing mode ends.
+
 ## [1.0.1] - 2026-11-11
 
 ### Added

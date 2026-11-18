@@ -35,6 +35,7 @@ internal sealed class WindowsHidService : IHidService, IHostedService
     private Dictionary<string, GattSubscribedClient> keyboardClients = new();
     private Dictionary<string, GattSubscribedClient> mouseClients = new();
     private bool advertising;
+    private bool pairing;
 
     public WindowsHidService(IBluetoothService bluetooth)
     {
@@ -57,6 +58,7 @@ internal sealed class WindowsHidService : IHidService, IHostedService
         await gate.WaitAsync(CancellationToken.None);
         try
         {
+            pairing = false;
             StopAdvertising();
             lock (sync)
             {
@@ -124,6 +126,75 @@ internal sealed class WindowsHidService : IHidService, IHostedService
         }
     }
 
+    public async Task<bool> StartPairingAsync()
+    {
+        await gate.WaitAsync();
+        try
+        {
+            if (provider == null)
+            {
+                var error = await CreateProviderAsync();
+                if (error != null)
+                {
+                    Log($"HID is not available on this PC: {error}");
+                    return false;
+                }
+            }
+
+            pairing = true;
+            if (!advertising)
+            {
+                provider.StartAdvertising(new GattServiceProviderAdvertisingParameters
+                {
+                    IsDiscoverable = true,
+                    IsConnectable = true,
+                });
+                advertising = true;
+                Log($"Pairing mode: advertising as a Bluetooth keyboard and mouse. On the other device, look for \"{Environment.MachineName}\" in the Bluetooth list and pair.");
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            pairing = false;
+            Log($"Could not start pairing mode: {ex.Message}");
+            return false;
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    public async Task StopPairingAsync()
+    {
+        await gate.WaitAsync();
+        try
+        {
+            pairing = false;
+            bool none;
+            lock (sync)
+            {
+                none = enabled.Count == 0;
+            }
+
+            // A device that is enabled needs the advertising: only the pairing reason goes away.
+            if (none)
+            {
+                StopAdvertising();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"Could not stop pairing mode: {ex.Message}");
+        }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
     public async Task DisableAsync(string key)
     {
         await gate.WaitAsync();
@@ -140,8 +211,9 @@ internal sealed class WindowsHidService : IHidService, IHostedService
             StateChanged?.Invoke(this, new HidStateChangedEventArgs(key, HidState.Off));
             StopWatchingLink(key);
 
-            // Windows cannot disconnect a phone from the server side. The device just stops receiving input.
-            if (none)
+            // Windows cannot disconnect a phone from the server side. The device just stops receiving input. Pairing mode needs
+            // the advertising too.
+            if (none && !pairing)
             {
                 StopAdvertising();
             }
